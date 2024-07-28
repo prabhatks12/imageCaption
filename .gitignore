@@ -124,3 +124,6 @@ dmypy.json
 cython_debug/
 
 archive/*
+archive
+
+.DS_Store
