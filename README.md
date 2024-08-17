@@ -69,7 +69,7 @@ sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk \
 1. Killing the task, ports get occupied repeatedly 
 ```
 lsof -i tcp:8080
-kill -p <pid>
+kill -9 <pid>
 ```
 
 2. Additional package used
