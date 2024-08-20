@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload for Captioning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .upload-container {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            width: 400px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, border-color 0.3s;
+            text-align: center;
+        }
+        .upload-container.dragover {
+            background-color: #e9ecef;
+            border-color: #0056b3;
+        }
+        .upload-container p {
+            margin: 0;
+            color: #007bff;
+            font-size: 18px;
+        }
+        .upload-container img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            margin-bottom: 20px; /* Increased gap between image and caption */
+        }
+        .upload-container .caption {
+            font-size: 16px;
+            color: #333;
+            margin-top: 20px; /* Additional spacing */
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container" id="uploadContainer">
+        <p>Drag and drop an image here</p>
+        <img id="uploadedImage" src="" alt="Uploaded Image">
+        <p class="caption" id="caption">Caption will appear here</p>
+    </div>
+
+    <script>
+        const uploadContainer = document.getElementById('uploadContainer');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const captionElement = document.getElementById('caption');
+
+        uploadContainer.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadContainer.classList.add('dragover');
+        });
+
+        uploadContainer.addEventListener('dragleave', () => {
+            uploadContainer.classList.remove('dragover');
+        });
+
+        uploadContainer.addEventListener('drop', async (event) => {
+            event.preventDefault();
+            uploadContainer.classList.remove('dragover');
+            
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                // Display the image
+                const reader = new FileReader();
+                reader.onload = () => {
+                    uploadedImage.src = reader.result;
+                    uploadedImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+                
+                // Send the image to the server
+                try {
+                    const response = await fetch('/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    
+                    const result = await response.json();
+                    captionElement.textContent = result.caption || 'No caption available';
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    captionElement.textContent = 'Error retrieving caption';
+                }
+            } else {
+                captionElement.textContent = 'Please upload a valid image';
+            }
+        });
+    </script>
+</body>
+</html>
